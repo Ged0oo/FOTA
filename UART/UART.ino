@@ -29,11 +29,14 @@ void setup()
     Serial.println("\nSTM32F103 Custom Bootloader");
 }
 
-uint8_t dataToSend[4] = {0x01, 0x02, 0x03, 0x04}; // Your data frame.
+uint8_t dataToSend[10] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09}; // Your data frame.
 uint8_t framSize = sizeof(dataToSend);
 
 void loop() 
 {   
+    waitAck();
+    Write_Message_To_Serial_Port(framSize);
+    
     waitAck();
     Write_Fram_To_Serial_Port(dataToSend, framSize);
 }
@@ -56,7 +59,6 @@ void Write_Fram_To_Serial_Port(uint8_t Value[], uint8_t frameLength)
 
     // Once breaking the loop, the target recieves the reqiured Command
     recVal = SEND_NACK;
-
     // Send the frame data
     SerialPort.write(Value, frameLength);
     while(recVal == SEND_NACK)
@@ -65,25 +67,23 @@ void Write_Fram_To_Serial_Port(uint8_t Value[], uint8_t frameLength)
             recVal = SerialPort.read();
 
         if(SEND_ACK == recVal) 
-            Serial.println("\nReceived ACK\n\n");  
+            Serial.println("\nReceived ACK\n");  
     }
-    
 }
 
 void Write_Message_To_Serial_Port(uint8_t Value) 
 {    
     // Once breaking the loop, the target recieves the reqiured Command
     recVal = SEND_NACK;
+    // Send the data message
+    SerialPort.write(Value);
     while(recVal == SEND_NACK)
     {
-        // Send the data message
-        SerialPort.write(Value);
-
         if(SerialPort.available()) 
             recVal = SerialPort.read();
 
         if(SEND_ACK == recVal)
-            Serial.println("\nReceived ACK\n\n");   
+            Serial.println("\nReceived ACK\n");   
     }
 }
 

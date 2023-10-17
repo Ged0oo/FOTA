@@ -59,10 +59,9 @@ void SystemClock_Config(void);
 uint8_t BL_Host_Buffer[200];
 
 
-uint8_t RecieveLengthBl()
+void RecieveLengthBl(uint8_t *length)
 {
 	uint8_t recVal = 0xff;
-	uint8_t length = 0;
 	HAL_StatusTypeDef Hal_State = HAL_ERROR;
 
 	sendACK();
@@ -70,14 +69,13 @@ uint8_t RecieveLengthBl()
 
 	if(Hal_State == HAL_OK)
 	{
-		length = recVal;
+		*length = recVal;
 		recVal = 0xcd;
 	}
 	else
 		recVal = 0xab;
 
 	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
-	return length;
 }
 
 void ReciveMessageBL(uint8_t message, uint8_t length)
@@ -100,6 +98,7 @@ void ReciveMessageBL(uint8_t message, uint8_t length)
 
 	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
 }
+
 
 void ReciveFramBL(uint8_t length)
 {
@@ -175,9 +174,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  //len = RecieveLengthBl();
+	  RecieveLengthBl(&len);
 
-	  ReciveFramBL(4);
+	  ReciveFramBL(len);
 
   }
   /* USER CODE END 3 */
