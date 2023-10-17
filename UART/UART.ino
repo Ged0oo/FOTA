@@ -3,11 +3,19 @@
 #include <algorithm>
 
 
-HardwareSerial SerialPort(2); // Define the SoftwareSerial object for UART communication
+// UART configurations
+HardwareSerial SerialPort(1);
 
-#define     CBL_MEM_WRITE_CMD               0x14
-#define     FLASH_PAYLOAD_WRITE_FAILED      0x00
-#define     FLASH_PAYLOAD_WRITE_PASSED      0x01
+
+#define     CBL_MEM_WRITE_CMD                       0x14
+#define     FLASH_PAYLOAD_WRITE_FAILED              0x00
+#define     FLASH_PAYLOAD_WRITE_PASSED              0x01
+
+#define 	SEND_NACK        						0xAB
+#define 	SEND_ACK         						0xCD
+
+uint8_t recVal = SEND_NACK;
+uint8_t newVersion = 0;
 
 byte BL_Host_Buffer[255];
 
@@ -23,28 +31,57 @@ enum State { IDLE, WAIT_COMMAND, WAIT_ADDRESS };
 State state = IDLE;
 
 // Global array for binary data (replace this with your actual binary data)
-byte binaryData[12356] = 
+byte binaryData[200] = 
 {
   // Insert your binary data here
   // Example:
-  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
-  // ...
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+  0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa
 };
 
 unsigned long binaryDataLength = sizeof(binaryData);
 
+
+uint8_t data_to_send = 0xcd;  // ACK message
+uint8_t data_received;
+
 void setup() 
 {
-  Serial.begin(9600); // Initialize the hardware serial for debugging
-  SerialPort.begin(9600, SERIAL_8N1, 16, 17);
-  Serial.println("\nSTM32F103 Custom Bootloader");
-
-  Decode_CBL_Command(5);
+    Serial.begin(9600); // Initialize the hardware serial for debugging
+    SerialPort.begin(9600, SERIAL_8N1, 16, 17);
+    Serial.println("\nSTM32F103 Custom Bootloader");
+    //Read_Serial_Port(SEND_ACK);
+    //Decode_CBL_Command(5);
 }
 
 void loop() 
-{
-  
+{  
+    recVal = SEND_ACK;
+    Write_Data_To_Serial_Port(recVal);
+    delay(500);
+    
+    /*
+    SerialPort.write(data_to_send);
+    if (SerialPort.available()) 
+    {
+        data_received = SerialPort.read();
+        if (data_received == 0xcd) 
+        {
+            // Received ACK from the STM32
+            Serial.println("Received ACK");
+        }
+    }
+
+  delay(500);  // Delay before sending another ACK
+  */
+
 }
 
 void Decode_CBL_Command(uint8_t Command) 
@@ -105,18 +142,17 @@ void MemWright()
         BL_Host_Buffer[10 + BinFileReadLength] = Word_Value_To_Byte_Value(CRC32_Value, 4, 1);
        
         BaseMemoryAddress += BinFileReadLength;
-        Write_Data_To_Serial_Port(BL_Host_Buffer[0], 1);
-        delay(100);
+        //Write_Data_To_Serial_Port(BL_Host_Buffer[0], 1);
 
         for (int i = 1; i < CBL_MEM_WRITE_CMD_Len; i++) 
         {
-            Write_Data_To_Serial_Port(BL_Host_Buffer[i], CBL_MEM_WRITE_CMD_Len - 1);
+            //Write_Data_To_Serial_Port(BL_Host_Buffer[i], CBL_MEM_WRITE_CMD_Len - 1);
         }
 
         BinFileSentBytes += BinFileReadLength;
         Serial.print("\nBytes sent to the bootloader : ");
         Serial.println(BinFileSentBytes);
-        Read_Data_From_Serial_Port(CBL_MEM_WRITE_CMD);
+        Read_Serial_Port(SEND_ACK);
         delay(100);
     }
 
@@ -170,20 +206,53 @@ int minFun (int x, int y)
     else return y;
 }
 
-void Write_Data_To_Serial_Port(uint8_t Value, int Length) 
+void Write_Data_To_Serial_Port(uint8_t Value) 
 {
-  if (verbose_mode) 
-  {
-    Serial.print("0x");
-    Serial.print(Value, HEX);
-    Serial.print(" ");
-  }
-  if (Memory_Write_Active && !verbose_mode) 
-  {
-    Serial.print("#");
-  }
-  SerialPort.write(Value);
+    if (verbose_mode) 
+    {
+        Serial.print("0x");
+        Serial.print(Value, HEX);
+        Serial.print(" ");
+    }
+    if (Memory_Write_Active && !verbose_mode) 
+    {
+        Serial.print("#");
+    }
+    
+    // Once breaking the loop, the target recieves the reqiured Command
+    recVal = SEND_NACK;
+    while(recVal == SEND_NACK)
+    {
+        SerialPort.write(Value);
+        if(SerialPort.available())  recVal = SerialPort.read();
+
+        switch(recVal)
+        {
+            case SEND_ACK :
+                Serial.println("\nReceived ACK\n\n");
+                break;
+
+            case SEND_NACK :
+                Serial.println("\nReceived NACK\n\n");
+                break;
+        }   
+    }
 }
+
+void Read_Serial_Port(uint8_t Command_Code) 
+{
+    // Once breaking the loop, the target recieves the reqiured Command
+    recVal = SEND_NACK;
+    while(1)
+    {
+        recVal = SerialPort.read();
+        if(recVal == SEND_ACK)
+            break;
+        else 
+            recVal = SEND_NACK;
+    }
+}
+
 
 void Read_Data_From_Serial_Port(uint8_t Command_Code) 
 {
