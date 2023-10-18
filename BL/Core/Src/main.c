@@ -62,7 +62,6 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-PerformFlashErase();
 
 /* USER CODE END 0 */
 
@@ -98,8 +97,11 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t len = 0;
+  extern uint16_t newAppSize;
   PerformFlashErase();
+  newAppSize = RecieveNewAppSize();
+
+
 
   /* USER CODE END 2 */
 
@@ -111,7 +113,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	MemoryWrite();
+	  for(uint8_t i=0 ; i<newAppSize ; i++)
+		  MemoryWrite();
+
+	  sendACK();
 
   }
   /* USER CODE END 3 */

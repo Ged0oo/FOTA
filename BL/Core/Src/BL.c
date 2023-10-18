@@ -10,7 +10,7 @@
 uint8_t BL_Host_Buffer[300];
 
 static uint32_t StartAddress = 0x08008000;
-
+uint16_t newAppSize = 0;
 
 void MemoryWrite()
 {
@@ -45,7 +45,7 @@ void PerformMemoryWrite(uint8_t Framelength)
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter+=4 , UpdataAdress+=4)
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength/2 ; Payload_Counter+=4 , UpdataAdress+=4)
 		{
 			Address = StartAddress + UpdataAdress;
 			uint32_t swappedData = swapByteOrder(*(uint32_t*)(BL_Host_Buffer + Payload_Counter));
@@ -88,6 +88,26 @@ void RecieveLengthBl(uint8_t *length)
 }
 
 
+uint16_t RecieveNewAppSize(uint16_t length)
+{
+	uint16_t recVal = 0xff;
+	HAL_StatusTypeDef Hal_State = HAL_ERROR;
+
+	sendACK();
+	Hal_State = HAL_UART_Receive(&huart1, &recVal, 1, HAL_MAX_DELAY);
+
+	if(Hal_State == HAL_OK)
+	{
+		length = recVal;
+		recVal = 0xcd;
+	}
+	else
+		recVal = 0xab;
+
+	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
+	return length;
+}
+
 
 void ReciveMessageBL(uint8_t message, uint8_t length)
 {
@@ -111,8 +131,6 @@ void ReciveMessageBL(uint8_t message, uint8_t length)
 
 	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
 }
-
-
 
 
 void ReciveFramBL(uint8_t length)
@@ -179,4 +197,28 @@ void PerformFlashErase()
 	return PageStatus;
 }
 
+
+void JumpToApplication()
+{
+	//just a function pointer to hold the address of the reset handler of the user app.
+	void (*app_reset_handler)(void);
+
+	//disbale interuppts
+    __set_PRIMASK(1);
+    __disable_irq();
+
+    SCB->VTOR = FLASH_SECTOR2_BASE_ADDRESS;
+
+    // 1. configure the MSP by reading the value from the base address of the sector 2
+    uint32_t msp_value = *(__IO uint32_t *)FLASH_SECTOR2_BASE_ADDRESS;
+
+    __set_MSP(msp_value);
+
+    uint32_t resethandler_address = *(__IO uint32_t *) (FLASH_SECTOR2_BASE_ADDRESS + 4);
+
+    app_reset_handler = (void*) resethandler_address;
+
+    //3. jump to reset handler of the user application
+    app_reset_handler();
+}
 
