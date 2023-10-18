@@ -78,6 +78,7 @@ void RecieveLengthBl(uint8_t *length)
 	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
 }
 
+
 void ReciveMessageBL(uint8_t message, uint8_t length)
 {
 	uint8_t recVal = 0xff;
@@ -118,6 +119,7 @@ void ReciveFramBL(uint8_t length)
 
 	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
 }
+
 
 void sendACK()
 {
