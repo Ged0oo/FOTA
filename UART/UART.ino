@@ -6,6 +6,7 @@
 HardwareSerial SerialPort(1);
 
 #define     CBL_MEM_WRITE_CMD                       0x14
+#define     CBL_MEM_Erasing_CMD                     0x15
 #define     FLASH_PAYLOAD_WRITE_FAILED              0x00
 #define     FLASH_PAYLOAD_WRITE_PASSED              0x01
 
@@ -20,13 +21,6 @@ bool Memory_Write_Active = false;
 bool Memory_Write_Is_Active = false;
 bool Memory_Write_All = false;
 
-
-void setup() 
-{
-    Serial.begin(115200); // Initialize the hardware serial for debugging
-    SerialPort.begin(115200, SERIAL_8N1, 16, 17);
-    Serial.println("\nSTM32F103 Custom Bootloader");
-}
 
 // Your data frame.
 uint8_t dataToSend[256] = 
@@ -51,27 +45,28 @@ uint8_t dataToSend[256] =
 
 byte BL_Host_Buffer[255];
 
-
 uint16_t dataSize = sizeof(dataToSend);
 uint16_t chunkSize = 16;
 uint16_t currentIndex = 0;
 
+void setup() 
+{
+    Serial.begin(115200); // Initialize the hardware serial for debugging
+    SerialPort.begin(115200, SERIAL_8N1, 16, 17);
+    Serial.println("\nSTM32F103 Custom Bootloader");
+    // Sending the Erasing Command
+    Erasing_Command();
+}
 
 void loop() 
 {   
-    // Send data in 16-byte chunks
-    while (currentIndex < dataSize) 
-    {
-        uint16_t remaining = dataSize - currentIndex;
-        uint16_t chunkLength = min(chunkSize, remaining);
 
-        waitAck();
-        Write_Message_To_Serial_Port(chunkLength);
+}
 
-        waitAck();
-        Write_Fram_To_Serial_Port(dataToSend + currentIndex, chunkLength);
-        currentIndex += chunkLength;
-    }
+void Erasing_Command()
+{
+    waitAck();
+    Write_Message_To_Serial_Port(CBL_MEM_Erasing_CMD);
 }
 
 void Write_Fram_To_Serial_Port(uint8_t *Value, uint16_t frameLength) 

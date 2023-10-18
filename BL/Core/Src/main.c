@@ -21,19 +21,24 @@
 #include "crc.h"
 #include "usart.h"
 #include "gpio.h"
+#include <string.h>
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <string.h>
+#include "BL.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
+
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 
 /* USER CODE END PD */
 
@@ -56,78 +61,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t BL_Host_Buffer[200];
-
-
-void RecieveLengthBl(uint8_t *length)
-{
-	uint8_t recVal = 0xff;
-	HAL_StatusTypeDef Hal_State = HAL_ERROR;
-
-	sendACK();
-	Hal_State = HAL_UART_Receive(&huart1, &recVal, 1, HAL_MAX_DELAY);
-
-	if(Hal_State == HAL_OK)
-	{
-		*length = recVal;
-		recVal = 0xcd;
-	}
-	else
-		recVal = 0xab;
-
-	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
-}
-
-
-void ReciveMessageBL(uint8_t message, uint8_t length)
-{
-	uint8_t recVal = 0xff;
-	HAL_StatusTypeDef Hal_State = HAL_ERROR;
-	Hal_State = HAL_UART_Receive(&huart1, &recVal, length, HAL_MAX_DELAY);
-
-	if(Hal_State == HAL_OK)
-	{
-		if(recVal == message)
-		{
-			recVal = 0xcd;
-		}
-	}
-	else
-	{
-		recVal = 0xab;
-	}
-
-	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
-}
-
-
-void ReciveFramBL(uint8_t length)
-{
-	/* Intialize the data Buffer by Zeros */
-	memset(BL_Host_Buffer, 0, 200);
-
-	uint8_t recVal = 0xff;
-	HAL_StatusTypeDef Hal_State = HAL_ERROR;
-
-	sendACK();
-	Hal_State = HAL_UART_Receive(&huart1, &BL_Host_Buffer[0], length, HAL_MAX_DELAY);
-
-	if(Hal_State == HAL_OK)
-		recVal = 0xcd;
-	else
-		recVal = 0xab;
-
-	Hal_State = HAL_UART_Transmit(&huart1, &recVal, 1, HAL_MAX_DELAY);
-}
-
-
-void sendACK()
-{
-	uint8_t ACK = 0xcd;
-	HAL_StatusTypeDef Hal_State = HAL_ERROR;
-	Hal_State = HAL_UART_Transmit(&huart1, &ACK, 1, HAL_MAX_DELAY);
-}
-
 
 
 /* USER CODE END 0 */
@@ -176,9 +109,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  RecieveLengthBl(&len);
+	  MemoryErase();
 
-	  ReciveFramBL(len);
+	  //RecieveLengthBl(&len);
+	  //ReciveFramBL(len);
 
   }
   /* USER CODE END 3 */
