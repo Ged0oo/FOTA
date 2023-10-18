@@ -7,7 +7,7 @@
 
 #include "BL.h"
 
-uint8_t BL_Host_Buffer[200];
+uint8_t BL_Host_Buffer[300];
 
 static uint32_t StartAddress = 0x08008000;
 

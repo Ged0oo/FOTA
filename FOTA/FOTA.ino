@@ -86,8 +86,8 @@ void loop()
     Serial.print("New Application Available with length : ");
     Serial.println(newAppLength); 
     uint8_t dataToSend[newAppLength];
+    appFlag = 0;
   }
-  delay(1000);
 }
 
 

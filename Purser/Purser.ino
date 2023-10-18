@@ -1,12 +1,11 @@
-uint8_t dataToSend[256] = ":0204F2:0204F2668201";
+uint8_t dataToSend[256] = "00 50 00 20 49 8C";
 
 uint8_t byteArray[128];
 size_t dataLength = 0;
 
-void setup() 
-{
+void setup() {
     Serial.begin(115200);
-    removeColons(dataToSend);
+    removeSpaces(dataToSend);
     dataLength = parseHexData(dataToSend, byteArray);
 }
 
@@ -21,12 +20,12 @@ void loop()
     delay(1000);
 }
 
-void removeColons(uint8_t* input) 
+void removeSpaces(uint8_t* input) 
 {
     size_t j = 0;
     for (size_t i = 0; input[i] != '\0'; i++) 
     {
-        if (input[i] != ':') 
+        if (input[i] != ' ') 
         {
             input[j++] = input[i];
         }
