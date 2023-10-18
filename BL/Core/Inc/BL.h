@@ -64,4 +64,7 @@ typedef enum
 }tCRC_VERIFY;
 
 
+void MemoryWrite();
+void PerformMemoryWrite(uint8_t len);
+
 #endif /* INC_BL_H_ */

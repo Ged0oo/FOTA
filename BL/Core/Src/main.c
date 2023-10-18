@@ -109,10 +109,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  MemoryErase();
-
-	  //RecieveLengthBl(&len);
-	  //ReciveFramBL(len);
+	  MemoryWrite();
 
   }
   /* USER CODE END 3 */

@@ -54,14 +54,45 @@ void setup()
     Serial.begin(115200); // Initialize the hardware serial for debugging
     SerialPort.begin(115200, SERIAL_8N1, 16, 17);
     Serial.println("\nSTM32F103 Custom Bootloader");
+    
     // Sending the Erasing Command
-    Erasing_Command();
+    //Erasing_Command();
+
+    PayloadWrite();
+
+
 }
 
 void loop() 
 {   
 
 }
+
+void PayloadWrite()
+{
+    uint16_t dataSize = sizeof(dataToSend);
+    uint16_t chunkSize = 16;
+    uint16_t currentIndex = 0;
+    
+
+    // Send data in 10-byte chunks
+    while (currentIndex < dataSize) 
+    {
+        waitAck();
+        Write_Message_To_Serial_Port(CBL_MEM_WRITE_CMD);
+
+        uint16_t remaining = dataSize - currentIndex;
+        uint16_t chunkLength = min(chunkSize, remaining);
+
+        waitAck();
+        Write_Message_To_Serial_Port(chunkLength);
+
+        waitAck();
+        Write_Fram_To_Serial_Port(dataToSend + currentIndex, chunkLength);
+        currentIndex += chunkLength;
+    }
+}
+
 
 void Erasing_Command()
 {
