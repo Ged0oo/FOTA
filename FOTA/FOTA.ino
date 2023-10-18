@@ -11,6 +11,8 @@ const char* mqtt_topic = "mqttHQ-client-test";
 
 char dataBuffer[20480];  // Define a buffer with sufficient space (adjust the size as needed)
 int dataLength = 0;     // Keep track of the data length
+uint8_t appFlag = 0;
+uint32_t newAppLength = 0;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -26,6 +28,7 @@ void setup()
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+  appFlag = 0;
 
   // Set the maximum MQTT packet size
   client.setBufferSize(20480); // Change the buffer size to your desired value
@@ -64,6 +67,8 @@ void callback(char* topic, byte* payload, unsigned int length)
         Serial.println("Buffer full. Flushing data.");
         flushBuffer(); // Call the function to flush the buffer
     }
+    appFlag = 1;
+    newAppLength = length;
   }
 }
 
@@ -75,6 +80,14 @@ void loop()
     reconnect();
   }
   client.loop();
+
+  if(appFlag == 1)
+  {
+    Serial.print("New Application Available with length : ");
+    Serial.println(newAppLength); 
+    uint8_t dataToSend[newAppLength];
+  }
+  delay(1000);
 }
 
 
