@@ -16,10 +16,11 @@ void MemoryWrite()
 	ReciveMessageBL(CBL_MEM_WRITE_CMD, 1);
 	RecieveLengthBl(&len);
 	ReciveFramBL(len);
-	//PerformMemoryWrite(len);
+	PerformMemoryWrite(len, 0x08008000);
 }
 
-void PerformMemoryWrite(uint8_t len)
+
+void PerformMemoryWrite(uint8_t Framelength, uint32_t StartAddress)
 {
 	HAL_StatusTypeDef HAL_Status = HAL_ERROR;
 	uint8_t Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
@@ -27,18 +28,20 @@ void PerformMemoryWrite(uint8_t len)
 
 	uint32_t Address=0;
 	uint8_t UpdataAdress=0;
-	uint32_t StartAddress = 0x8008000;
+
+
+	PerformFlashErase();
+
 
 	/* Unlock the FLASH control register access */
 	HAL_Status = HAL_FLASH_Unlock();
-
 	if(HAL_Status != HAL_OK)
 	{
 		Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < len/2 ; Payload_Counter++ , UpdataAdress+=2)
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter++ , UpdataAdress+=2)
 		{
 			Address = StartAddress + UpdataAdress;
 
