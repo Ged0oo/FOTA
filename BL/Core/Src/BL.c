@@ -19,6 +19,11 @@ void MemoryWrite()
 	PerformMemoryWrite(len, 0x08008000);
 }
 
+uint32_t swapByteOrder(uint32_t value)
+{
+    return ((value & 0xFF) << 24) | (((value >> 8) & 0xFF) << 16) | (((value >> 16) & 0xFF) << 8) | ((value >> 24) & 0xFF);
+}
+
 
 void PerformMemoryWrite(uint8_t Framelength, uint32_t StartAddress)
 {
@@ -28,7 +33,6 @@ void PerformMemoryWrite(uint8_t Framelength, uint32_t StartAddress)
 
 	uint32_t Address=0;
 	uint8_t UpdataAdress=0;
-
 
 	PerformFlashErase();
 
@@ -41,12 +45,14 @@ void PerformMemoryWrite(uint8_t Framelength, uint32_t StartAddress)
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter++ , UpdataAdress+=2)
+
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter+=4 , UpdataAdress+=4)
 		{
 			Address = StartAddress + UpdataAdress;
+			uint32_t swappedData = swapByteOrder(*(uint32_t*)(BL_Host_Buffer + Payload_Counter));
 
 			/* Program a byte at a specified address */
-			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, Address , BL_Host_Buffer[Payload_Counter]);
+			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, swappedData);
 
 			if(HAL_Status != HAL_OK)
 			{
