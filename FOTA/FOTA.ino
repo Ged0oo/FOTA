@@ -4,14 +4,13 @@
 #include <FS.h>
 
 
-const char* ssid = "Pablo";
-const char* password = "010250@Maldini";
+const char* ssid = "MN";
+const char* password = "1562001mn";
 const char* mqtt_server = "public.mqtthq.com";
 const char* mqtt_topic = "mqttHQ-client-test";
 
-char dataBuffer[15360];  // Define a buffer with sufficient space (adjust the size as needed)
+char dataBuffer[20480];  // Define a buffer with sufficient space (adjust the size as needed)
 int dataLength = 0;     // Keep track of the data length
-
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -62,7 +61,8 @@ void callback(char* topic, byte* payload, unsigned int length)
     } 
     else 
     {
-      Serial.println("Buffer full. Data is being lost.");
+        Serial.println("Buffer full. Flushing data.");
+        flushBuffer(); // Call the function to flush the buffer
     }
   }
 }
@@ -93,7 +93,19 @@ void reconnect()
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      delay(5000);
+      delay(2500);
     }
   }
+}
+
+void flushBuffer() 
+{
+  // Handle the data in the buffer as needed
+  // For example, you can send it over MQTT or save it to a file
+  // Then reset the buffer and dataLength
+  Serial.println("Flushing data...");
+  // Add your code to handle the data here
+  // Example: client.publish(mqtt_topic, dataBuffer, dataLength);
+  dataLength = 0;
+  memset(dataBuffer, 0, sizeof(dataBuffer));
 }
