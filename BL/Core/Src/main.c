@@ -62,6 +62,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+PerformFlashErase();
 
 /* USER CODE END 0 */
 
@@ -98,6 +99,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   uint8_t len = 0;
+  PerformFlashErase();
 
   /* USER CODE END 2 */
 
@@ -109,7 +111,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  MemoryWrite();
+	MemoryWrite();
 
   }
   /* USER CODE END 3 */

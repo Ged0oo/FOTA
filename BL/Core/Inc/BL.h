@@ -65,6 +65,6 @@ typedef enum
 
 
 void MemoryWrite();
-void PerformMemoryWrite(uint8_t Framelength, uint32_t StartAddress);
+void PerformMemoryWrite(uint8_t Framelength);
 
 #endif /* INC_BL_H_ */
