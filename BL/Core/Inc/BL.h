@@ -65,8 +65,6 @@ typedef enum
 
 
 void MemoryWrite();
-void PerformMemoryWrite(uint8_t Framelength);
-
 typedef void (*pMainApp)(void);
 typedef void (*Jump_Ptr)(void);
 typedef void (*FunctionPointer)(void);

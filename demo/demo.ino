@@ -47,8 +47,8 @@ void setup()
 
     while (WiFi.status() != WL_CONNECTED) 
     {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+        delay(1000);
+        Serial.println("Connecting to WiFi ... ");
     }
     Serial.println("Connected to WiFi");
     appFlag = 0;
@@ -64,61 +64,62 @@ void setup()
 
 void loop() 
 {
-  if (!client.connected()) 
-  {
-    reconnect();
-  }
-  client.loop();
+    if (!client.connected()) 
+    {
+        reconnect();
+    }
+    client.loop();
 
-  if(appFlag == 1)
-  {
-    removeSpaces(dataBuffer);
-    newAppLength = parseHexData(dataBuffer, PursedData);
+    if(appFlag == 1)
+    {
+        removeSpaces(dataBuffer);
+        newAppLength = parseHexData(dataBuffer, PursedData);
 
-    Serial.print("\nNew Application Available with length : ");
-    Serial.println(newAppLength); 
+        Serial.print("\nNew Application Available with length : ");
+        Serial.println(newAppLength); 
 
-    Serial.println("\nSTM32F103 Custom Bootloader");
+        Serial.println("\nSTM32F103 Custom Bootloader");
 
-    PayloadWrite();
-    waitAck();
+        PayloadWrite();
+        waitAck();
 
-    Serial.println("\nNew App Installed");
-    appFlag = 0;
-  }
+        Serial.println("\nNew App Installed");
+        appFlag = 0;
+    }
 }
 
 
 /* MQTT APIs */
 void callback(char* topic, byte* payload, unsigned int length) 
 {
-  Serial.print("Message arrived in topic : ");
-  Serial.println(topic);
-  Serial.print("Message : ");
+    Serial.print("Message arrived in topic : ");
+    Serial.println(topic);
+    Serial.print("Message : ");
 
-  String payloadString = "";
-  for (int i = 0; i < length; i++) 
-  {
-    payloadString += (char)payload[i];
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-
-  if(payloadString != "ttt")
-  {
-    if (dataLength + length < sizeof(dataBuffer)) 
+    String payloadString = "";
+    for (int i = 0; i < length; i++) 
     {
-      memcpy(dataBuffer + dataLength, payload, length);
-      dataLength += length; // Include the newline character
-    } 
-    else 
-    {
-        Serial.println("Buffer full. Flushing data.");
-        flushBuffer(); // Call the function to flush the buffer
+        payloadString += (char)payload[i];
+        Serial.print((char)payload[i]);
     }
-    appFlag = 1;
-    newAppLength = dataLength;
-  }
+    Serial.println();
+
+    if(payloadString != "ttt")
+    {
+        if (dataLength + length < sizeof(dataBuffer)) 
+        {
+            memcpy(dataBuffer + dataLength, payload, length);
+            dataLength += length; // Include the newline character
+        } 
+        else 
+        {
+            Serial.println("Buffer full. Flushing data.");
+            flushBuffer(); // Call the function to flush the buffer
+        }
+
+        appFlag = 1;
+        newAppLength = dataLength;
+    }
 }
 
 

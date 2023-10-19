@@ -14,7 +14,7 @@ uint16_t newAppSize = 0;
 
 void MemoryWrite()
 {
-	uint8_t len = 0;
+	uint16_t len = 0;
 	ReciveMessageBL(CBL_MEM_WRITE_CMD, 1);
 	RecieveLengthBl(&len);
 	ReciveFramBL(len);
@@ -33,6 +33,8 @@ void PerformMemoryWrite(uint8_t Framelength)
 	uint8_t Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
 	uint16_t Payload_Counter = 0;
 
+	uint16_t * pdata = (uint8_t *)&BL_Host_Buffer;
+
 	uint32_t Address=0;
 	uint8_t UpdataAdress=0;
 
@@ -45,13 +47,12 @@ void PerformMemoryWrite(uint8_t Framelength)
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength/2 ; Payload_Counter+=4 , UpdataAdress+=4)
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength/2 ; Payload_Counter++ , UpdataAdress+=2)
 		{
 			Address = StartAddress + UpdataAdress;
-			uint32_t swappedData = swapByteOrder(*(uint32_t*)(BL_Host_Buffer + Payload_Counter));
 
 			/* Program a byte at a specified address */
-			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Address, swappedData);
+			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, Address , pdata[Payload_Counter]);
 
 			if(HAL_Status != HAL_OK)
 			{
@@ -68,7 +69,7 @@ void PerformMemoryWrite(uint8_t Framelength)
 }
 
 
-void RecieveLengthBl(uint8_t *length)
+void RecieveLengthBl(uint16_t *length)
 {
 	uint8_t recVal = 0xff;
 	HAL_StatusTypeDef Hal_State = HAL_ERROR;
@@ -133,7 +134,7 @@ void ReciveMessageBL(uint8_t message, uint8_t length)
 }
 
 
-void ReciveFramBL(uint8_t length)
+void ReciveFramBL(uint16_t length)
 {
 	/* Intialize the data Buffer by Zeros */
 	memset(BL_Host_Buffer, 0, 200);

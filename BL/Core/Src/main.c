@@ -78,7 +78,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+ HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -99,9 +99,17 @@ int main(void)
 
   extern uint16_t newAppSize;
   PerformFlashErase();
+
+
   newAppSize = RecieveNewAppSize();
 
+  for(uint16_t i=0 ; i<=newAppSize ; i++)
+  {
+	  MemoryWrite();
+  }
 
+  sendACK();
+  JumpToApplication();
 
   /* USER CODE END 2 */
 
@@ -113,10 +121,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  for(uint8_t i=0 ; i<newAppSize ; i++)
-		  MemoryWrite();
 
-	  sendACK();
 
   }
   /* USER CODE END 3 */
