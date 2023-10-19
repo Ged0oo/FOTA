@@ -47,7 +47,7 @@ void PerformMemoryWrite(uint8_t Framelength)
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength/2 ; Payload_Counter++ , UpdataAdress+=2)
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter+=2 , UpdataAdress+=2)
 		{
 			Address = StartAddress + UpdataAdress;
 
@@ -65,7 +65,7 @@ void PerformMemoryWrite(uint8_t Framelength)
 			}
 		}
 	}
-	StartAddress = Address + 4;
+	StartAddress = Address + 2;
 }
 
 

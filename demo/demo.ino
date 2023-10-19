@@ -201,7 +201,7 @@ void Word_Value_To_Bytes(uint8_t* input, uint8_t* output, int numWords, bool byt
 void PayloadWrite()
 {
     uint16_t dataSize = newAppLength;
-    uint16_t chunkSize = 64;
+    uint16_t chunkSize = 16;
     uint16_t currentIndex = 0;
 
     waitAck();
