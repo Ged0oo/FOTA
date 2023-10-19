@@ -47,7 +47,7 @@ void PerformMemoryWrite(uint8_t Framelength)
 	}
 	else
 	{
-		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength ; Payload_Counter+=2 , UpdataAdress+=2)
+		for(Payload_Counter=0 , UpdataAdress=0 ; Payload_Counter < Framelength/2 ; Payload_Counter+=1 , UpdataAdress+=2)
 		{
 			Address = StartAddress + UpdataAdress;
 
@@ -222,4 +222,3 @@ void JumpToApplication()
     //3. jump to reset handler of the user application
     app_reset_handler();
 }
-

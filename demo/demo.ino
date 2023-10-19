@@ -135,9 +135,9 @@ void reconnect()
     } 
     else 
     {
-      Serial.print("failed, rc=");
+      Serial.print("failed,");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(" try again.");
       delay(2500);
     }
   }
@@ -201,7 +201,7 @@ void Word_Value_To_Bytes(uint8_t* input, uint8_t* output, int numWords, bool byt
 void PayloadWrite()
 {
     uint16_t dataSize = newAppLength;
-    uint16_t chunkSize = 16;
+    uint16_t chunkSize = 64;
     uint16_t currentIndex = 0;
 
     waitAck();

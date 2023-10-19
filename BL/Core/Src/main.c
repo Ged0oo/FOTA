@@ -95,9 +95,15 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   MX_USART1_UART_Init();
+
+
+
   /* USER CODE BEGIN 2 */
 
+
   extern uint16_t newAppSize;
+
+
   PerformFlashErase();
 
 
@@ -109,11 +115,16 @@ int main(void)
   }
 
   sendACK();
+
   JumpToApplication();
+
 
   /* USER CODE END 2 */
 
+
   /* Infinite loop */
+
+
   /* USER CODE BEGIN WHILE */
   while (1)
   {

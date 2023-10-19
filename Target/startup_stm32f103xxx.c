@@ -13,7 +13,7 @@ extern uint32_t _estack ,_etext,_sdata,_edata,_sbss,_ebss,_sidata, __isr_vector_
 uint32_t * const MSP_value = (uint32_t*) &_estack;
 volatile uint32_t *VTOR = (volatile uint32_t *)0xE000E010;
 
-void app_reset_handler                       (void);
+void app_reset_handler                  (void);
 void NMI_Handler                        (void);
 void HardFault_Handler                  (void);
 void MemManage_Handler                  (void);

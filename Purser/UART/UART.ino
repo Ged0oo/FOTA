@@ -77,7 +77,7 @@ uint8_t realData[256]
 
 byte BL_Host_Buffer[255];
 
-uint16_t dataSize = sizeof(dataToSend);
+uint16_t dataSize = sizeof(realData);
 uint16_t chunkSize = 16;
 uint16_t currentIndex = 0;
 
