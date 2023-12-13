@@ -7,6 +7,11 @@
 // UART configurations
 HardwareSerial SerialPort(1);
 
+#define     GreenLed            19
+#define     YellowLed           21
+#define     RedLed              23
+#define     WhiteLed            4
+
 #define 	SEND_NACK        						0xAB
 #define 	SEND_ACK         						0xCD
 #define     CBL_MEM_WRITE_CMD                       0x14
@@ -15,8 +20,8 @@ HardwareSerial SerialPort(1);
 #define     FLASH_PAYLOAD_WRITE_PASSED              0x01
 
 
-const char* ssid = "hos";
-const char* password = "00000000";
+const char* ssid = "Ged0oo";
+const char* password = "19919690mN";
 const char* mqtt_server = "public.mqtthq.com";
 const char* mqtt_topic = "mqttHQ-client-test";
 
@@ -40,6 +45,17 @@ PubSubClient client(espClient);
 
 void setup() 
 {
+    pinMode(RedLed, OUTPUT);
+    pinMode(YellowLed, OUTPUT);
+    pinMode(GreenLed, OUTPUT);
+    pinMode(WhiteLed, OUTPUT);
+
+
+    digitalWrite(RedLed, 0);
+    digitalWrite(YellowLed, 0);
+    digitalWrite(GreenLed, 0);
+    digitalWrite(WhiteLed, 0);
+
     Serial.begin(115200);
     SerialPort.begin(115200, SERIAL_8N1, 16, 17);
 
@@ -47,9 +63,12 @@ void setup()
 
     while (WiFi.status() != WL_CONNECTED) 
     {
+        digitalWrite(RedLed, 1);
         delay(1000);
         Serial.println("Connecting to WiFi ... ");
     }
+    digitalWrite(RedLed, 0);
+    digitalWrite(YellowLed, 1);
     Serial.println("Connected to WiFi");
     appFlag = 0;
 
@@ -69,9 +88,10 @@ void loop()
         reconnect();
     }
     client.loop();
-
+    
     if(appFlag == 1)
     {
+        digitalWrite(WhiteLed, 1);
         removeSpaces(dataBuffer);
         newAppLength = parseHexData(dataBuffer, PursedData);
 
@@ -86,8 +106,10 @@ void loop()
         PayloadWrite();
         waitAck();
 
+        digitalWrite(GreenLed, 0);
         Serial.println("\nNew App Installed");
         appFlag = 0;
+        digitalWrite(WhiteLed, 0);
     }
 }
 
@@ -136,6 +158,8 @@ void callback(char* topic, byte* payload, unsigned int length)
             flushBuffer(); // Call the function to flush the buffer
         }
 
+        digitalWrite(GreenLed, 0);
+        digitalWrite(WhiteLed, 1);
         appFlag = 1;
         newAppLength = dataLength;
     }
@@ -150,6 +174,8 @@ void reconnect()
     if (client.connect("ESP32Client")) 
     {
       Serial.println("connected");
+      digitalWrite(YellowLed, 0);
+      digitalWrite(GreenLed, 1);
       client.subscribe(mqtt_topic);
     } 
     else 
@@ -157,7 +183,7 @@ void reconnect()
       Serial.print("failed,");
       Serial.print(client.state());
       Serial.println(" try again.");
-      delay(2500);
+      delay(50);
     }
   }
 }
