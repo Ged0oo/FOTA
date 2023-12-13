@@ -4,9 +4,9 @@ import os
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Input binary file name
-input_binary_file = 'file.bin'
+input_binary_file = 'Application.bin'
 # Output text file name
-output_text_file = 'file.txt'
+output_text_file = 'Application.txt'
 
 # Construct the full paths for the input and output files
 input_binary_file_path = os.path.join(current_directory, input_binary_file)

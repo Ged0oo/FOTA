@@ -8,7 +8,7 @@ script_dir = os.path.dirname(__file__)
 os.chdir(script_dir)
 
 # Now you can open 'file.txt' using a relative path
-with open('file.txt', 'r') as file:
+with open('Application.txt', 'r') as file:
     file_content = file.read()
 
 # MQTT setup

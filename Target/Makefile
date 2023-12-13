@@ -4,6 +4,7 @@ SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
 all : Application.bin
+	cp Application.bin ../
 
 Application.bin : Application.hex
 	$(TCH)objcopy -I ihex -O binary $< $@
@@ -18,4 +19,4 @@ Application.elf : $(OBJ)
 	$(TCH)gcc -c $(OPT) $< -o $@
 		
 clean : 
-	del *.o *.hex *.elf
+	rm *.o *.hex *.elf *.bin
