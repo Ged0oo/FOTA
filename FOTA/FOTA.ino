@@ -1,8 +1,5 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <SPIFFS.h>
-#include <FS.h>
-
 
 const char* ssid = "MN";
 const char* password = "1562001mn";
@@ -55,6 +52,7 @@ void callback(char* topic, byte* payload, unsigned int length)
 
   if(payloadString != "ttt")
   {
+	  /*	Processing the Recived data		*/
     if (dataLength + length < sizeof(dataBuffer)) 
     {
       memcpy(dataBuffer + dataLength, payload, length);
@@ -113,12 +111,7 @@ void reconnect()
 
 void flushBuffer() 
 {
-  // Handle the data in the buffer as needed
-  // For example, you can send it over MQTT or save it to a file
-  // Then reset the buffer and dataLength
   Serial.println("Flushing data...");
-  // Add your code to handle the data here
-  // Example: client.publish(mqtt_topic, dataBuffer, dataLength);
   dataLength = 0;
   memset(dataBuffer, 0, sizeof(dataBuffer));
 }

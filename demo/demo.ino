@@ -15,8 +15,8 @@ HardwareSerial SerialPort(1);
 #define     FLASH_PAYLOAD_WRITE_PASSED              0x01
 
 
-const char* ssid = "MN";
-const char* password = "1562001mn";
+const char* ssid = "hos";
+const char* password = "00000000";
 const char* mqtt_server = "public.mqtthq.com";
 const char* mqtt_topic = "mqttHQ-client-test";
 
@@ -78,14 +78,33 @@ void loop()
         Serial.print("\nNew Application Available with length : ");
         Serial.println(newAppLength); 
 
-        Serial.println("\nSTM32F103 Custom Bootloader");
+        Serial.println("\nSTM32F103 Custom Bootloader\n");
+        Serial.println("Waiting for Hand Chake ACK\n"); 
+        waitAck();
 
+        Serial.println("\nBegine Sending Binary Frames :\n");
         PayloadWrite();
         waitAck();
 
         Serial.println("\nNew App Installed");
         appFlag = 0;
     }
+}
+
+void MakeHAndChake(void)
+{
+    // Once breaking the loop, the target recieves the reqiured Command
+    recVal = SEND_NACK;
+    uint8_t ack = 0xCD;
+    
+    while(recVal != SEND_ACK)
+    {
+        SerialPort.write(ack);
+        recVal = SerialPort.read(); 
+        if(SEND_ACK == recVal)
+            Serial.println("Received ACK\n");   
+    }
+    Serial.println("Recived Hand Chake ACK\n");
 }
 
 
@@ -104,7 +123,7 @@ void callback(char* topic, byte* payload, unsigned int length)
     }
     Serial.println();
 
-    if(payloadString != "ttt")
+    if(payloadString != "Test")
     {
         if (dataLength + length < sizeof(dataBuffer)) 
         {
@@ -204,21 +223,25 @@ void PayloadWrite()
     uint16_t chunkSize = 64;
     uint16_t currentIndex = 0;
 
+    Serial.print("Sending Number of Memory Chunks :\n");
     waitAck();
     Write_Message_To_Serial_Port(dataSize/chunkSize);
 
     // Send data in 10-byte chunks
     while (currentIndex < dataSize) 
     {
+        Serial.print("Sending Memory Write Command :\n");
         waitAck();
         Write_Message_To_Serial_Port(CBL_MEM_WRITE_CMD);
 
         uint16_t remaining = dataSize - currentIndex;
         uint16_t chunkLength = min(chunkSize, remaining);
 
+        Serial.print("Sending Current Chunk Length :\n");
         waitAck();
         Write_Message_To_Serial_Port(chunkLength);
 
+        Serial.print("Sending Current Data Frame :\n");
         waitAck();
         Write_Fram_To_Serial_Port(PursedData + currentIndex, chunkLength);
         currentIndex += chunkLength;
@@ -291,7 +314,7 @@ void waitAck()
             recVal = SerialPort.read();
 
         if(SEND_ACK == recVal)
-            Serial.println("\nReceived ACK\n\n");   
+            Serial.println("Received ACK\n");   
     }
 }
 

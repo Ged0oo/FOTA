@@ -103,9 +103,9 @@ int main(void)
 
   extern uint16_t newAppSize;
 
+  sendACK();
 
   PerformFlashErase();
-
 
   newAppSize = RecieveNewAppSize();
 

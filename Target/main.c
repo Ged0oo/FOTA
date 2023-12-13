@@ -8,7 +8,7 @@ extern RCC_Config_t RCC_obj;
 GPIO_ConfigType led =
 {
 	.GPIOx = GPIOA,
-	.GPIO_PinNumber = GPIO_PIN_5,
+	.GPIO_PinNumber = GPIO_PIN_0,
 	.GPIO_PinMode = GPIO_PIN_GENERAL_PURPOSE_OUTPUT_PUSHPULL_MODE_2MHZ,
 	.GPIO_Logic = GPIO_LOW
 };

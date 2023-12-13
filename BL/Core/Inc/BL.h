@@ -68,5 +68,6 @@ void MemoryWrite();
 typedef void (*pMainApp)(void);
 typedef void (*Jump_Ptr)(void);
 typedef void (*FunctionPointer)(void);
+void waitOnAck(void);
 
 #endif /* INC_BL_H_ */

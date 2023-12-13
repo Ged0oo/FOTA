@@ -222,3 +222,17 @@ void JumpToApplication()
     //3. jump to reset handler of the user application
     app_reset_handler();
 }
+
+
+void waitOnAck(void)
+{
+	uint8_t recVal = 0xff;
+	uint8_t ack = 0xCD;
+	HAL_StatusTypeDef Hal_State = HAL_ERROR;
+
+	while(recVal != 0xCD)
+	{
+		Hal_State = HAL_UART_Receive(&huart1, &recVal, 1, HAL_MAX_DELAY);
+		Hal_State = HAL_UART_Transmit(&huart1, &ack, 1, HAL_MAX_DELAY);
+	}
+}
